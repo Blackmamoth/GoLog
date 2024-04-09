@@ -182,7 +182,7 @@ func (l *logger) Set_Max_File_Size(max_size int64) {
 	l.logger_config.log_rotation_config.max_file_size = max_size
 }
 
-func (l *logger) Set_Max_Days(max_days uint) {
+func (l *logger) Set_Max_Days(max_days int) {
 	l.logger_config.log_rotation_config.max_rotation_days = max_days
 }
 
