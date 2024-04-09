@@ -1,8 +1,12 @@
 package golog
 
 import (
+	"archive/zip"
 	"fmt"
+	"io"
 	"os"
+	"path"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -12,6 +16,11 @@ import (
 )
 
 func New() *logger {
+	curr_dir, err := os.Getwd()
+	if err != nil {
+		color.Red("Cannot access current working directory\n")
+		os.Exit(1)
+	}
 	logger := logger{
 		logger_config: logger_config{
 			datetime_format: "Mon, 02 Jan, 2006 15:04:05",
@@ -19,7 +28,7 @@ func New() *logger {
 			log_level:       LOG_LEVEL_INFO,
 			log_stream:      LOG_STREAM_MULTIPLE,
 			log_rotation_config: log_rotation_config{
-				file_name:         "access.log",
+				file_name:         path.Join(curr_dir, "access.log"),
 				max_file_size:     50 * 1024 * 1024,
 				max_rotation_days: 7,
 				rotate_file:       true,
@@ -42,6 +51,57 @@ func (l *logger) generate_log(log_level string, msg string, caller_file string, 
 	return log
 }
 
+func (l *logger) compress_file() {
+	file_name := l.logger_config.log_rotation_config.file_name
+	log_file, err := os.Open(file_name)
+	if err != nil {
+		color.Red("Can't access the log file for rotation.\n")
+		os.Exit(1)
+	}
+	defer log_file.Close()
+	var dir_slice []string
+	if runtime.GOOS == "windows" {
+		dir_slice = strings.Split(file_name, "\\")
+	} else {
+		dir_slice = strings.Split(file_name, "/")
+	}
+	log_file_name := dir_slice[len(dir_slice)-1]
+	log_dir := filepath.Dir(file_name)
+	log_zip, err := os.Create(path.Join(log_dir, "access.log.zip"))
+	if err != nil {
+		color.Red("An error occured while creating zip file: %s\n", err)
+		os.Exit(1)
+	}
+	defer log_zip.Close()
+	zip_writer := zip.NewWriter(log_zip)
+	file_info, err := log_file.Stat()
+	if err != nil {
+		color.Red("An error occured while retrieving file info: %s\n", err)
+		os.Exit(1)
+	}
+	header, err := zip.FileInfoHeader(file_info)
+	if err != nil {
+		color.Red("An error occured while creating file header: %s\n", err)
+		os.Exit(1)
+	}
+	header.Name = log_file_name
+	writer, err := zip_writer.CreateHeader(header)
+	if err != nil {
+		color.Red("An error occured while creating file in zip archive: %s\n", err)
+		os.Exit(1)
+	}
+	_, err = io.Copy(writer, log_file)
+	if err != nil {
+		color.Red("An error occured while copying file to zip archive: %s\n", err)
+		os.Exit(1)
+	}
+	err = zip_writer.Close()
+	if err != nil {
+		color.Red("An error occured while closing zip file: %s\n", err)
+	}
+	color.Cyan("Log file [%s] has successfully been archived.\n", log_file_name)
+}
+
 func (l *logger) write_file(log string) {
 	file_name := l.logger_config.log_rotation_config.file_name
 	if file_name == "" {
@@ -50,10 +110,51 @@ func (l *logger) write_file(log string) {
 	}
 	file, err := os.OpenFile(file_name, os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
-		color.Red("An error occured while creating file [%s].\n", file_name)
+		color.Red("An error occured while accessing the log file: %s\n", err)
 		os.Exit(1)
 	}
 	defer file.Close()
+	file_stat, err := file.Stat()
+	if err != nil {
+		file.Close()
+		color.Red("An error occured while retrieving file stats: %s\n", err)
+		os.Exit(1)
+	}
+	size := file_stat.Size()
+	if size >= l.logger_config.log_rotation_config.max_file_size {
+		color.Cyan("Rotating old log file, max size reached.")
+		l.compress_file()
+		file.Close()
+		err := os.Remove(l.logger_config.log_rotation_config.file_name)
+		if err != nil {
+			color.Red("Could not remove old log file: %s", err)
+			os.Exit(1)
+		}
+		file, err := os.OpenFile(file_name, os.O_APPEND|os.O_CREATE, 0644)
+		if err != nil {
+			color.Red("An error occured while creating new log file: %s\n", err)
+			os.Exit(1)
+		}
+		defer file.Close()
+	}
+	mod_time := file_stat.ModTime()
+	max_days := l.logger_config.log_rotation_config.max_rotation_days
+	if time.Since(mod_time) > time.Duration(max_days)*24*time.Hour {
+		color.Cyan("Rotating old log file, max days reached.")
+		l.compress_file()
+		file.Close()
+		err := os.Remove(l.logger_config.log_rotation_config.file_name)
+		if err != nil {
+			color.Red("Could not remove old log file: %s", err)
+			os.Exit(1)
+		}
+		file, err := os.OpenFile(file_name, os.O_APPEND|os.O_CREATE, 0644)
+		if err != nil {
+			color.Red("An error occured while creating new log file: %s\n", err)
+			os.Exit(1)
+		}
+		defer file.Close()
+	}
 	file.WriteString(fmt.Sprintf("%s\n", log))
 }
 
@@ -77,7 +178,7 @@ func (l *logger) Set_File_Name(file_name string) {
 	l.logger_config.log_rotation_config.file_name = file_name
 }
 
-func (l *logger) Set_Max_File_Size(max_size uint32) {
+func (l *logger) Set_Max_File_Size(max_size int64) {
 	l.logger_config.log_rotation_config.max_file_size = max_size
 }
 

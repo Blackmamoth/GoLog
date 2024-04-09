@@ -22,8 +22,8 @@ type log_rotation_config struct {
 	rotate_file       bool
 	file_name         string
 	zip_archive       bool
-	max_file_size     uint32
-	max_rotation_days uint
+	max_file_size     int64
+	max_rotation_days int
 }
 
 type logger_config struct {
