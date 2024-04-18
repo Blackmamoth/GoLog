@@ -33,7 +33,7 @@ func New() (*logger, error) {
 			datetime_format: "Mon, 02 Jan, 2006 15:04:05",
 			log_format:      "[%(asctime)] %(levelname) - [%(filename).%(lineno)]: %(message)",
 			log_level:       LOG_LEVEL_INFO,
-			log_stream:      LOG_STREAM_MULTIPLE,
+			log_stream:      LOG_STREAM_FILE,
 			log_rotation_config: log_rotation_config{
 				file_name:         path.Join(caller_working_dir, "access.log"),
 				max_file_size:     50 * 1024 * 1024,
