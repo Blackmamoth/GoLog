@@ -52,7 +52,7 @@ func main() {
 	logger.Set_Log_Format("[%(asctime)] %(levelname) - %(message)")
 
 	// Set log stream
-	logger.Set_Log_Stream(GoLog.LOG_STREAM_MULTIPLE)
+	logger.Set_Log_Stream(golog.LOG_STREAM_MULTIPLE)
 
 	// Log messages
 	logger.DEBUG("Debug message")
