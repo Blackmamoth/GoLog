@@ -17,11 +17,17 @@ import (
 )
 
 func New() (*logger, error) {
-	curr_dir, err := os.Getwd()
+	pc, _, _, _ := runtime.Caller(1)
+
+	caller_file := runtime.FuncForPC(pc).Name()
+
+	caller_working_dir, err := filepath.Abs(caller_file)
+
 	if err != nil {
-		color.Red("Cannot access current working directory\n")
+		color.Red("An error occured while fetching current directory details.\n")
 		return nil, err
 	}
+
 	logger := logger{
 		logger_config: logger_config{
 			datetime_format: "Mon, 02 Jan, 2006 15:04:05",
@@ -29,7 +35,7 @@ func New() (*logger, error) {
 			log_level:       LOG_LEVEL_INFO,
 			log_stream:      LOG_STREAM_MULTIPLE,
 			log_rotation_config: log_rotation_config{
-				file_name:         path.Join(curr_dir, "access.log"),
+				file_name:         path.Join(caller_working_dir, "access.log"),
 				max_file_size:     50 * 1024 * 1024,
 				max_rotation_days: 7,
 				rotate_file:       true,
