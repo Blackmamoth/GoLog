@@ -229,13 +229,32 @@ func (l *logger) Zip_Archive(zip_archive bool) {
 	l.logger_config.log_rotation_config.zip_archive = zip_archive
 }
 
-func (l *logger) log(level string, msg string, levelColor func(string, ...interface{})) {
+func get_log_level_string(log_level LOG_LEVEL) string {
+	switch log_level {
+	case LOG_LEVEL_TRACE:
+		return "TRACE"
+	case LOG_LEVEL_DEBUG:
+		return "DEBUG"
+	case LOG_LEVEL_INFO:
+		return "INFO"
+	case LOG_LEVEL_WARN:
+		return "WARN"
+	case LOG_LEVEL_ERROR:
+		return "ERROR"
+	case LOG_LEVEL_CRITICAL:
+		return "CRITICAL"
+	default:
+		return ""
+	}
+}
+
+func (l *logger) log(level LOG_LEVEL, msg string, levelColor func(string, ...interface{})) error {
 	_, file, line, _ := runtime.Caller(2)
-
 	file = filepath.Base(file)
-	log := l.generate_log(level, msg, file, line)
+	log_level := get_log_level_string(level)
+	log := l.generate_log(log_level, msg, file, line)
 
-	if l.logger_config.log_level <= LOG_LEVEL_TRACE {
+	if l.logger_config.log_level <= level {
 
 		if l.logger_config.log_stream == LOG_STREAM_CONSOLE || l.logger_config.log_stream == LOG_STREAM_MULTIPLE {
 			levelColor("%s\n", log)
@@ -245,29 +264,30 @@ func (l *logger) log(level string, msg string, levelColor func(string, ...interf
 			l.write_file(log)
 		}
 	}
+	return nil
 }
 
 func (l *logger) TRACE(msg string) {
-	l.log("TRACE", msg, color.White)
+	l.log(LOG_LEVEL_TRACE, msg, color.White)
 }
 
 func (l *logger) DEBUG(msg string) {
-	l.log("DEBUG", msg, color.Blue)
+	l.log(LOG_LEVEL_DEBUG, msg, color.Blue)
 }
 
 func (l *logger) INFO(msg string) {
-	l.log("INFO", msg, color.Magenta)
+	l.log(LOG_LEVEL_INFO, msg, color.Magenta)
 }
 
 func (l *logger) WARN(msg string) {
-	l.log("WARN", msg, color.Yellow)
+	l.log(LOG_LEVEL_WARN, msg, color.Yellow)
 }
 
 func (l *logger) ERROR(msg string) {
-	l.log("ERROR", msg, color.Red)
+	l.log(LOG_LEVEL_ERROR, msg, color.Red)
 }
 
 func (l *logger) CRITICAL(msg string) {
 	critical := color.New(color.FgRed, color.Bold, color.Underline)
-	l.log("CRITICAL", msg, critical.PrintfFunc())
+	l.log(LOG_LEVEL_CRITICAL, msg, critical.PrintfFunc())
 }

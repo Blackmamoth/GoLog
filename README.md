@@ -43,7 +43,7 @@ import (
 
 func main() {
 	// Initialize the logger
-	logger, _ := golog.New()
+	logger := golog.New()
 
 	// Set logging level
 	logger.Set_Log_Level(golog.LOG_LEVEL_DEBUG)
@@ -53,6 +53,9 @@ func main() {
 
 	// Set log stream
 	logger.Set_Log_Stream(golog.LOG_STREAM_MULTIPLE)
+
+	// Set max size
+	logger.Set_Max_File_Size(10 * 1024 * 1024)
 
 	// Log messages
 	logger.DEBUG("Debug message")
