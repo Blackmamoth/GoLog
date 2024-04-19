@@ -242,6 +242,7 @@ func (l *logger) Zip_Archive(zip_archive bool) {
 
 func (l *logger) TRACE(msg string) {
 	_, file, line, _ := runtime.Caller(1)
+	file = filepath.Base(file)
 	log := l.generate_log("TRACE", msg, file, line)
 
 	if l.logger_config.log_level <= LOG_LEVEL_TRACE {
@@ -259,6 +260,7 @@ func (l *logger) TRACE(msg string) {
 
 func (l *logger) DEBUG(msg string) {
 	_, file, line, _ := runtime.Caller(1)
+	file = filepath.Base(file)
 	log := l.generate_log("DEBUG", msg, file, line)
 
 	if l.logger_config.log_level <= LOG_LEVEL_DEBUG {
@@ -275,6 +277,7 @@ func (l *logger) DEBUG(msg string) {
 
 func (l *logger) INFO(msg string) {
 	_, file, line, _ := runtime.Caller(1)
+	file = filepath.Base(file)
 	log := l.generate_log("INFO", msg, file, line)
 
 	if l.logger_config.log_level <= LOG_LEVEL_INFO {
@@ -291,6 +294,7 @@ func (l *logger) INFO(msg string) {
 
 func (l *logger) WARN(msg string) {
 	_, file, line, _ := runtime.Caller(1)
+	file = filepath.Base(file)
 	log := l.generate_log("WARN", msg, file, line)
 
 	if l.logger_config.log_level <= LOG_LEVEL_WARN {
@@ -307,6 +311,7 @@ func (l *logger) WARN(msg string) {
 
 func (l *logger) ERROR(msg string) {
 	_, file, line, _ := runtime.Caller(1)
+	file = filepath.Base(file)
 	log := l.generate_log("ERROR", msg, file, line)
 
 	if l.logger_config.log_level <= LOG_LEVEL_ERROR {
@@ -322,6 +327,7 @@ func (l *logger) ERROR(msg string) {
 
 func (l *logger) CRITICAL(msg string) {
 	_, file, line, _ := runtime.Caller(1)
+	file = filepath.Base(file)
 	log := l.generate_log("CRITICAL", msg, file, line)
 
 	if l.logger_config.log_level <= LOG_LEVEL_CRITICAL {

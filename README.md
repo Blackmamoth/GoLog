@@ -2,7 +2,7 @@
 
 GoLog is a logger for GoLang, designed to provide flexible and easy-to-use logging capabilities for Go projects. It aims to simplify logging tasks while offering customization options to suit various project requirements.
 
-## Installation
+## Installation 🛠
 
 You can install GoLog as a project dependency using `go get`:
 
@@ -10,7 +10,7 @@ You can install GoLog as a project dependency using `go get`:
 go get -u github.com/blackmamoth/GoLog
 ```
 
-## How It Works
+## How It Works ⚙
 
 GoLog simplifies logging tasks by providing convenient methods for logging messages at various severity levels, including `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, and `CRITICAL`. Additionally, it offers the following customization options:
 
@@ -32,18 +32,18 @@ GoLog simplifies logging tasks by providing convenient methods for logging messa
 
 - `Zip_Archive(zip_archive bool)`: Specifies whether a log file should be archived while it is rotated. If `false`, the current log file will be removed, and a new one will be generated.
 
-## Example Usage
+## Example Usage 📝
 
 ```go
 package main
 
 import (
-	"github.com/blackmamoth/GoLog"
+	golog "github.com/blackmamoth/GoLog"
 )
 
 func main() {
 	// Initialize the logger
-	logger := golog.New()
+	logger, _ := golog.New()
 
 	// Set logging level
 	logger.Set_Log_Level(golog.LOG_LEVEL_DEBUG)
@@ -63,6 +63,8 @@ func main() {
 }
 ```
 
-## Planned/Pending Features
+## Planned/Pending Features 📅
 
-- Thread safety logger
+- DRY principle
+
+- Thread safe logging
