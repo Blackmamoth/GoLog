@@ -19,8 +19,6 @@ import (
 func New() *logger {
 	_, file, _, _ := runtime.Caller(1)
 
-	// caller_file := runtime.FuncForPC(pc)
-
 	caller_working_dir := filepath.Dir(file)
 	logger := logger{
 		logger_config: logger_config{
