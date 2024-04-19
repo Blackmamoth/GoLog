@@ -68,3 +68,5 @@ func main() {
 - ~~DRY principle~~
 
 - Thread safe logging
+
+- Write tests
