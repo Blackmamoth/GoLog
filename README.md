@@ -65,6 +65,6 @@ func main() {
 
 ## Planned/Pending Features 📅
 
-- DRY principle
+- ~~DRY principle~~
 
 - Thread safe logging
