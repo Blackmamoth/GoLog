@@ -32,6 +32,7 @@ type logger_config struct {
 	log_stream          LOG_STREAM
 	log_format          string
 	datetime_format     string
+	with_emoji          bool
 }
 
 type logger struct {

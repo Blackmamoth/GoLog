@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/enescakir/emoji"
 	"github.com/fatih/color"
 )
 
@@ -26,6 +27,7 @@ func New() *logger {
 			log_format:      "[%(asctime)] %(levelname) - [%(filename).%(lineno)]: %(message)",
 			log_level:       LOG_LEVEL_INFO,
 			log_stream:      LOG_STREAM_FILE,
+			with_emoji:      false,
 			log_rotation_config: log_rotation_config{
 				file_name:         filepath.Join(caller_working_dir, "access.log"),
 				max_file_size:     50 * 1024 * 1024,
@@ -39,7 +41,7 @@ func New() *logger {
 	return &logger
 }
 
-func (l *logger) generate_log(log_level string, msg string, caller_file string, caller_line int) string {
+func (l *logger) generate_log(log_level string, msg string, caller_file string, caller_line int, emoji emoji.Emoji) string {
 	var log string
 	log = l.logger_config.log_format
 
@@ -50,6 +52,10 @@ func (l *logger) generate_log(log_level string, msg string, caller_file string, 
 	log = strings.ReplaceAll(log, "%(filename)", caller_file)
 	log = strings.ReplaceAll(log, "%(lineno)", strconv.Itoa(caller_line))
 	log = strings.ReplaceAll(log, "%(message)", msg)
+
+	if l.logger_config.with_emoji {
+		log = strings.ReplaceAll(log, "-", emoji.String())
+	}
 
 	return log
 }
@@ -136,7 +142,7 @@ func (l *logger) rotate_file(file *os.File, file_name string, roatate_msg string
 		color.Red("Could not remove old log file.\n")
 		return err
 	}
-	file, err = os.OpenFile(file_name, os.O_APPEND|os.O_CREATE, 0644)
+	file, err = os.OpenFile(file_name, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 
 	if err != nil {
 		color.Red("An error occured while creating new log file.\n")
@@ -155,7 +161,7 @@ func (l *logger) write_file(log string) error {
 		return errors.New("file name not specified for logging")
 	}
 
-	file, err := os.OpenFile(file_path, os.O_APPEND|os.O_CREATE, 0644)
+	file, err := os.OpenFile(file_path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 
 	if err != nil {
 		color.Red("An error occured while accessing the log file.\n")
@@ -193,8 +199,9 @@ func (l *logger) write_file(log string) error {
 		}
 	}
 
-	file.WriteString(fmt.Sprintf("%s\n", log))
-	return nil
+	_, err = file.WriteString(fmt.Sprintf("%s\n", log))
+
+	return err
 }
 
 func (l *logger) Set_Log_Level(log_level LOG_LEVEL) {
@@ -229,6 +236,10 @@ func (l *logger) Zip_Archive(zip_archive bool) {
 	l.logger_config.log_rotation_config.zip_archive = zip_archive
 }
 
+func (l *logger) With_Emoji(with_emoji bool) {
+	l.logger_config.with_emoji = with_emoji
+}
+
 func get_log_level_string(log_level LOG_LEVEL) string {
 	switch log_level {
 	case LOG_LEVEL_TRACE:
@@ -248,12 +259,11 @@ func get_log_level_string(log_level LOG_LEVEL) string {
 	}
 }
 
-func (l *logger) log(level LOG_LEVEL, msg string, levelColor func(string, ...interface{})) error {
+func (l *logger) log(level LOG_LEVEL, msg string, levelColor func(string, ...interface{}), emoji emoji.Emoji) error {
 	_, file, line, _ := runtime.Caller(2)
 	file = filepath.Base(file)
 	log_level := get_log_level_string(level)
-	log := l.generate_log(log_level, msg, file, line)
-
+	log := l.generate_log(log_level, msg, file, line, emoji)
 	if l.logger_config.log_level <= level {
 
 		if l.logger_config.log_stream == LOG_STREAM_CONSOLE || l.logger_config.log_stream == LOG_STREAM_MULTIPLE {
@@ -261,33 +271,54 @@ func (l *logger) log(level LOG_LEVEL, msg string, levelColor func(string, ...int
 		}
 
 		if l.logger_config.log_stream == LOG_STREAM_FILE || l.logger_config.log_stream == LOG_STREAM_MULTIPLE {
-			l.write_file(log)
+			err := l.write_file(log)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
 func (l *logger) TRACE(msg string) {
-	l.log(LOG_LEVEL_TRACE, msg, color.White)
+	err := l.log(LOG_LEVEL_TRACE, msg, color.White, emoji.Unicorn)
+	if err != nil {
+		color.Red("Error while logging: %v\n", err)
+	}
 }
 
 func (l *logger) DEBUG(msg string) {
-	l.log(LOG_LEVEL_DEBUG, msg, color.Blue)
+	err := l.log(LOG_LEVEL_DEBUG, msg, color.Blue, emoji.VideoGame)
+	if err != nil {
+		color.Red("Error while logging: %v\n", err)
+	}
 }
 
 func (l *logger) INFO(msg string) {
-	l.log(LOG_LEVEL_INFO, msg, color.Magenta)
+	err := l.log(LOG_LEVEL_INFO, msg, color.Magenta, emoji.LightBulb)
+	if err != nil {
+		color.Red("Error while logging: %v\n", err)
+	}
 }
 
 func (l *logger) WARN(msg string) {
-	l.log(LOG_LEVEL_WARN, msg, color.Yellow)
+	err := l.log(LOG_LEVEL_WARN, msg, color.Yellow, emoji.Loudspeaker)
+	if err != nil {
+		color.Red("Error while logging: %v\n", err)
+	}
 }
 
 func (l *logger) ERROR(msg string) {
-	l.log(LOG_LEVEL_ERROR, msg, color.Red)
+	err := l.log(LOG_LEVEL_ERROR, msg, color.Red, emoji.CrossMark)
+	if err != nil {
+		color.Red("Error while logging: %v\n", err)
+	}
 }
 
 func (l *logger) CRITICAL(msg string) {
 	critical := color.New(color.FgRed, color.Bold, color.Underline)
-	l.log(LOG_LEVEL_CRITICAL, msg, critical.PrintfFunc())
+	err := l.log(LOG_LEVEL_CRITICAL, msg, critical.PrintfFunc(), emoji.CrossedFlags)
+	if err != nil {
+		color.Red("Error while logging: %v\n", err)
+	}
 }

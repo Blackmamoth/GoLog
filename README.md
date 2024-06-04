@@ -32,6 +32,8 @@ GoLog simplifies logging tasks by providing convenient methods for logging messa
 
 - `Zip_Archive(zip_archive bool)`: Specifies whether a log file should be archived while it is rotated. If `false`, the current log file will be removed, and a new one will be generated.
 
+- `With_Emoji(with_emoji bool)`: Specifies whether log statements should contain emoji.
+
 ## Example Usage 📝
 
 ```go
@@ -56,6 +58,9 @@ func main() {
 
 	// Set max size
 	logger.Set_Max_File_Size(10 * 1024 * 1024)
+
+	// Make use of emojis in log statement
+	logger.With_Emoji(true)
 
 	// Log messages
 	logger.DEBUG("Debug message")
