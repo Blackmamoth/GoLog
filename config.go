@@ -38,3 +38,21 @@ type logger_config struct {
 type logger struct {
 	logger_config logger_config
 }
+
+type Logger interface {
+	Set_Log_Level(log_level LOG_LEVEL)
+	Set_Log_Format(log_format string)
+	Set_Log_Stream(log_stream LOG_STREAM)
+	Set_Datetime_Format(format string)
+	Set_File_Name(file_name string)
+	Set_Max_File_Size(max_size int64)
+	Set_Max_Days(max_days int)
+	Zip_Archive(zip_archive bool)
+	With_Emoji(with_emoji bool)
+	TRACE(msg string)
+	DEBUG(msg string)
+	INFO(msg string)
+	WARN(msg string)
+	ERROR(msg string)
+	CRITICAL(msg string)
+}
