@@ -24,7 +24,7 @@ func New() *logger {
 	logger := logger{
 		logger_config: logger_config{
 			datetime_format: "Mon, 02 Jan, 2006 15:04:05",
-			log_format:      "[%(asctime)] %(levelname) - [%(filename).%(lineno)]: %(message)",
+			log_format:      "%(asctime) [%(levelname)] - [%(filename).%(lineno)]: %(message)",
 			log_level:       LOG_LEVEL_INFO,
 			log_stream:      LOG_STREAM_FILE,
 			with_emoji:      false,
@@ -54,7 +54,7 @@ func (l *logger) generate_log(log_level string, msg string, caller_file string, 
 	log = strings.ReplaceAll(log, "%(message)", msg)
 
 	if l.logger_config.with_emoji {
-		log = strings.ReplaceAll(log, "-", emoji.String())
+		log = strings.Replace(log, "-", emoji.String(), 1)
 	}
 
 	return log
