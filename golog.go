@@ -23,11 +23,12 @@ func New() *logger {
 	caller_working_dir := filepath.Dir(file)
 	logger := logger{
 		logger_config: logger_config{
-			datetime_format: "Mon, 02 Jan, 2006 15:04:05",
-			log_format:      "%(asctime) [%(levelname)] - [%(filename).%(lineno)]: %(message)",
-			log_level:       LOG_LEVEL_INFO,
-			log_stream:      LOG_STREAM_FILE,
-			with_emoji:      false,
+			datetime_format:  "Mon, 02 Jan, 2006 15:04:05",
+			log_format:       "%(asctime) [%(levelname)] - [%(filename).%(lineno)]: %(message)",
+			log_level:        LOG_LEVEL_INFO,
+			log_stream:       LOG_STREAM_FILE,
+			with_emoji:       false,
+			exit_on_critical: false,
 			log_rotation_config: log_rotation_config{
 				file_name:         filepath.Join(caller_working_dir, "access.log"),
 				max_file_size:     50 * 1024 * 1024,
@@ -204,6 +205,10 @@ func (l *logger) write_file(log string) error {
 	return err
 }
 
+func (l *logger) EXIT_ON_CRITICAL(should_exit bool) {
+	l.logger_config.exit_on_critical = should_exit
+}
+
 func (l *logger) Set_Log_Level(log_level LOG_LEVEL) {
 	l.logger_config.log_level = log_level
 }
@@ -320,5 +325,9 @@ func (l *logger) CRITICAL(msg string) {
 	err := l.log(LOG_LEVEL_CRITICAL, msg, critical.PrintfFunc(), emoji.CrossedFlags)
 	if err != nil {
 		color.Red("Error while logging: %v\n", err)
+	}
+
+	if l.logger_config.exit_on_critical {
+		os.Exit(1)
 	}
 }

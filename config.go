@@ -33,6 +33,7 @@ type logger_config struct {
 	log_format          string
 	datetime_format     string
 	with_emoji          bool
+	exit_on_critical    bool
 }
 
 type logger struct {
@@ -49,6 +50,7 @@ type Logger interface {
 	Set_Max_Days(max_days int)
 	Zip_Archive(zip_archive bool)
 	With_Emoji(with_emoji bool)
+	EXIT_ON_CRITICAL(should_exit bool)
 	TRACE(msg string)
 	DEBUG(msg string)
 	INFO(msg string)
