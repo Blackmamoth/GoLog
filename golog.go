@@ -23,11 +23,12 @@ func New() *logger {
 	caller_working_dir := filepath.Dir(file)
 	logger := logger{
 		logger_config: logger_config{
-			datetime_format: "Mon, 02 Jan, 2006 15:04:05",
-			log_format:      "%(asctime) [%(levelname)] - [%(filename).%(lineno)]: %(message)",
-			log_level:       LOG_LEVEL_INFO,
-			log_stream:      LOG_STREAM_FILE,
-			with_emoji:      false,
+			datetime_format:  "Mon, 02 Jan, 2006 15:04:05",
+			log_format:       "%(asctime) [%(levelname)] - [%(filename).%(lineno)]: %(message)",
+			log_level:        LOG_LEVEL_INFO,
+			log_stream:       LOG_STREAM_FILE,
+			with_emoji:       false,
+			exit_on_critical: false,
 			log_rotation_config: log_rotation_config{
 				file_name:         filepath.Join(caller_working_dir, "access.log"),
 				max_file_size:     50 * 1024 * 1024,
@@ -238,6 +239,10 @@ func (l *logger) Zip_Archive(zip_archive bool) {
 
 func (l *logger) With_Emoji(with_emoji bool) {
 	l.logger_config.with_emoji = with_emoji
+}
+
+func (l *logger) Exit_On_Critical(exit bool) {
+	l.logger_config.exit_on_critical = exit
 }
 
 func get_log_level_string(log_level LOG_LEVEL) string {

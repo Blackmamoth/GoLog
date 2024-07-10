@@ -34,6 +34,8 @@ GoLog simplifies logging tasks by providing convenient methods for logging messa
 
 - `With_Emoji(with_emoji bool)`: Specifies whether log statements should contain emoji.
 
+- `Exit_On_Critical(exit bool)`: Specifies whether program should exit on a critical log.
+
 ## Example Usage 📝
 
 ```go

@@ -33,6 +33,7 @@ type logger_config struct {
 	log_format          string
 	datetime_format     string
 	with_emoji          bool
+	exit_on_critical    bool
 }
 
 type logger struct {
@@ -55,4 +56,5 @@ type Logger interface {
 	WARN(msg string)
 	ERROR(msg string)
 	CRITICAL(msg string)
+	Exit_On_Critical(exit bool)
 }
