@@ -280,44 +280,50 @@ func (l *logger) log(level LOG_LEVEL, msg string, levelColor func(string, ...int
 	return nil
 }
 
-func (l *logger) TRACE(msg string) {
-	err := l.log(LOG_LEVEL_TRACE, msg, color.White, emoji.Unicorn)
+func (l *logger) TRACE(msg string, a ...interface{}) {
+	formattedMsg := fmt.Sprintf(msg, a...)
+	err := l.log(LOG_LEVEL_TRACE, formattedMsg, color.White, emoji.Unicorn)
 	if err != nil {
 		color.Red("Error while logging: %v\n", err)
 	}
 }
 
-func (l *logger) DEBUG(msg string) {
-	err := l.log(LOG_LEVEL_DEBUG, msg, color.Blue, emoji.VideoGame)
+func (l *logger) DEBUG(msg string, a ...interface{}) {
+	formattedMsg := fmt.Sprintf(msg, a...)
+	err := l.log(LOG_LEVEL_DEBUG, formattedMsg, color.Blue, emoji.VideoGame)
 	if err != nil {
 		color.Red("Error while logging: %v\n", err)
 	}
 }
 
-func (l *logger) INFO(msg string) {
-	err := l.log(LOG_LEVEL_INFO, msg, color.Magenta, emoji.LightBulb)
+func (l *logger) INFO(msg string, a ...interface{}) {
+	formattedMsg := fmt.Sprintf(msg, a...)
+	err := l.log(LOG_LEVEL_INFO, formattedMsg, color.Magenta, emoji.LightBulb)
 	if err != nil {
 		color.Red("Error while logging: %v\n", err)
 	}
 }
 
-func (l *logger) WARN(msg string) {
-	err := l.log(LOG_LEVEL_WARN, msg, color.Yellow, emoji.Loudspeaker)
+func (l *logger) WARN(msg string, a ...interface{}) {
+	formattedMsg := fmt.Sprintf(msg, a...)
+	err := l.log(LOG_LEVEL_WARN, formattedMsg, color.Yellow, emoji.Loudspeaker)
 	if err != nil {
 		color.Red("Error while logging: %v\n", err)
 	}
 }
 
-func (l *logger) ERROR(msg string) {
-	err := l.log(LOG_LEVEL_ERROR, msg, color.Red, emoji.CrossMark)
+func (l *logger) ERROR(msg string, a ...interface{}) {
+	formattedMsg := fmt.Sprintf(msg, a...)
+	err := l.log(LOG_LEVEL_ERROR, formattedMsg, color.Red, emoji.CrossMark)
 	if err != nil {
 		color.Red("Error while logging: %v\n", err)
 	}
 }
 
-func (l *logger) CRITICAL(msg string) {
+func (l *logger) CRITICAL(msg string, a ...interface{}) {
+	formattedMsg := fmt.Sprintf(msg, a...)
 	critical := color.New(color.FgRed, color.Bold, color.Underline)
-	err := l.log(LOG_LEVEL_CRITICAL, msg, critical.PrintfFunc(), emoji.CrossedFlags)
+	err := l.log(LOG_LEVEL_CRITICAL, formattedMsg, critical.PrintfFunc(), emoji.CrossedFlags)
 	if err != nil {
 		color.Red("Error while logging: %v\n", err)
 	}
