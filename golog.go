@@ -332,4 +332,8 @@ func (l *logger) CRITICAL(msg string, a ...interface{}) {
 	if err != nil {
 		color.Red("Error while logging: %v\n", err)
 	}
+
+	if l.logger_config.exit_on_critical {
+		os.Exit(1)
+	}
 }
